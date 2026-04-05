@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Member Contributions – Sanatan Biradari Seva Trust</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --saffron: #e8670a;
+      --saffron-light: #f5891e;
+      --saffron-pale: #fff5eb;
+      --saffron-dark: #b84e05;
+      --blue: #1a6fa8;
+      --blue-light: #3b9edd;
+      --blue-pale: #eaf4fb;
+      --gold: #d4a017;
+      --green: #27ae60;
+      --green-pale: #eafaf1;
+      --red: #e74c3c;
+      --red-pale: #fdf0ef;
+      --white: #ffffff;
+      --off-white: #fdfaf6;
+      --text-dark: #1a1a2e;
+      --text-mid: #444460;
+      --text-light: #7777a0;
+      --border: #e8ddd0;
+      --shadow-sm: 0 2px 12px rgba(232,103,10,0.10);
+      --shadow-md: 0 6px 28px rgba(232,103,10,0.14);
+      --radius: 16px;
+      --radius-sm: 10px;
+      --transition: 0.28s cubic-bezier(0.4,0,0.2,1);
+      --font-display: 'Playfair Display', Georgia, serif;
+      --font-body: 'Nunito', sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font-body); background: var(--off-white); color: var(--text-dark); line-height: 1.6; }
+    a { text-decoration: none; color: inherit; }
+
+    /* ---- TOPBAR ---- */
+    .topbar {
+      background: linear-gradient(135deg, #2d1206, #e8670a);
+      padding: 14px 32px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.2);
+    }
+    .topbar-brand { display: flex; align-items: center; gap: 12px; }
+    .topbar-logo { font-size: 1.8rem; }
+    .topbar-name { font-family: var(--font-display); font-size: 1rem; color: #fff; font-weight: 700; }
+    .topbar-sub  { font-size: 0.72rem; color: rgba(255,255,255,0.7); letter-spacing: 0.08em; }
+    .topbar-nav  { display: flex; gap: 12px; align-items: center; }
+    .topbar-nav a {
+      color: rgba(255,255,255,0.85); font-size: 0.88rem; font-weight: 600;
+      padding: 7px 16px; border-radius: 999px; transition: all var(--transition);
+    }
+    .topbar-nav a:hover { background: rgba(255,255,255,0.15); color: #fff; }
+    .topbar-nav .admin-btn {
+      background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.35);
+      cursor: pointer; font-family: var(--font-body);
+    }
+    .topbar-nav .admin-btn:hover { background: rgba(255,255,255,0.28); }
+
+    /* ---- PAGE HEADER ---- */
+    .page-header {
+      background: linear-gradient(150deg, #2d1206 0%, #8a3a04 50%, #e8670a 100%);
+      padding: 64px 32px 52px;
+      text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .page-header::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M30 0l3 10 9-7-5 10 10-1-8 7 9 5-10 1 3 10-8-7-8 7 3-10-10-1 9-5-8-7 10 1-5-10 9 7z'/%3E%3C/g%3E%3C/svg%3E");
+    }
+    .page-header-tag {
+      display: inline-block;
+      background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
+      color: rgba(255,255,255,0.9); font-size: 0.78rem; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 6px 18px; border-radius: 999px; margin-bottom: 16px;
+    }
+    .page-header h1 {
+      font-family: var(--font-display); font-size: clamp(1.8rem, 4vw, 2.8rem);
+      color: #fff; margin-bottom: 10px;
+    }
+    .page-header p { color: rgba(255,255,255,0.75); font-size: 1rem; }
+
+    /* ---- CONTAINER ---- */
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+    .main-content { padding: 48px 24px; max-width: 1200px; margin: 0 auto; }
+
+    /* ---- SUMMARY CARDS ---- */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 44px;
+    }
+    .summary-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border);
+      transition: all var(--transition);
+      position: relative; overflow: hidden;
+    }
+    .summary-card::after {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    }
+    .summary-card.orange::after { background: linear-gradient(90deg, var(--saffron), var(--saffron-light)); }
+    .summary-card.green::after  { background: linear-gradient(90deg, var(--green), #2ecc71); }
+    .summary-card.blue::after   { background: linear-gradient(90deg, var(--blue), var(--blue-light)); }
+    .summary-card.gold::after   { background: linear-gradient(90deg, var(--gold), #f0c842); }
+    .summary-card.red::after    { background: linear-gradient(90deg, var(--red), #e67e73); }
+    .summary-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+    .card-icon { font-size: 2rem; margin-bottom: 12px; }
+    .card-label { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-light); margin-bottom: 6px; }
+    .card-value { font-family: var(--font-display); font-size: 1.9rem; font-weight: 700; color: var(--text-dark); line-height: 1; }
+    .card-value.orange { color: var(--saffron); }
+    .card-value.green  { color: var(--green); }
+    .card-value.blue   { color: var(--blue); }
+    .card-value.red    { color: var(--red); }
+    .card-sub { font-size: 0.8rem; color: var(--text-light); margin-top: 4px; }
+
+    /* ---- SECTION TITLE ---- */
+    .section-head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
+    .section-title { font-family: var(--font-display); font-size: 1.5rem; color: var(--text-dark); }
+    .section-sub-text { font-size: 0.88rem; color: var(--text-light); }
+
+    /* ---- MONTH FILTER ---- */
+    .filters {
+      display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; align-items: center;
+    }
+    .filter-label { font-size: 0.85rem; font-weight: 700; color: var(--text-mid); }
+    .month-chip {
+      padding: 6px 16px; border-radius: 999px; font-size: 0.82rem; font-weight: 700;
+      border: 1.5px solid var(--border); background: var(--white); color: var(--text-mid);
+      cursor: pointer; transition: all var(--transition);
+    }
+    .month-chip:hover, .month-chip.active {
+      background: var(--saffron); border-color: var(--saffron); color: var(--white);
+    }
+    .search-box {
+      margin-left: auto;
+      padding: 8px 16px; border: 1.5px solid var(--border); border-radius: 999px;
+      font-family: var(--font-body); font-size: 0.88rem; outline: none;
+      background: var(--white); width: 200px; transition: all var(--transition);
+    }
+    .search-box:focus { border-color: var(--saffron); box-shadow: 0 0 0 3px rgba(232,103,10,0.1); }
+
+    /* ---- TABLE ---- */
+    .table-wrap {
+      background: var(--white); border-radius: var(--radius);
+      box-shadow: var(--shadow-sm); border: 1px solid var(--border);
+      overflow: hidden; margin-bottom: 32px;
+    }
+    .table-scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; min-width: 900px; }
+    thead th {
+      background: linear-gradient(135deg, #2d1206, #8a3a04);
+      color: rgba(255,255,255,0.9);
+      padding: 14px 16px; text-align: left; font-weight: 700;
+      font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase;
+      white-space: nowrap; position: sticky; top: 0;
+    }
+    thead th:first-child { border-radius: 0; }
+    tbody tr { border-bottom: 1px solid #f0ebe4; transition: background var(--transition); }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: var(--saffron-pale); }
+    tbody td { padding: 13px 16px; color: var(--text-dark); white-space: nowrap; }
+    tbody td:first-child { font-weight: 700; color: var(--text-dark); }
+    .cell-paid   { color: var(--green); font-weight: 700; }
+    .cell-pending{ color: var(--red);   font-weight: 700; }
+    .cell-na     { color: var(--text-light); font-style: italic; }
+    .cell-total  { font-weight: 800; font-family: var(--font-display); font-size: 1rem; color: var(--saffron); }
+    .badge-paid    { background: var(--green-pale); color: var(--green); padding: 3px 10px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; }
+    .badge-pending { background: var(--red-pale);   color: var(--red);   padding: 3px 10px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; }
+    .tfoot-row td { background: var(--saffron-pale); font-weight: 800; color: var(--text-dark); font-size: 0.92rem; border-top: 2px solid var(--border); }
+    .tfoot-row td:first-child { color: var(--saffron); font-family: var(--font-display); font-size: 1rem; }
+
+    /* ---- LEGEND ---- */
+    .legend { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 32px; }
+    .legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; font-weight: 600; color: var(--text-mid); }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .legend-dot.green { background: var(--green); }
+    .legend-dot.red   { background: var(--red); }
+    .legend-dot.gray  { background: #ccc; }
+
+    /* ============================================================
+       ADMIN OVERLAY
+       ============================================================ */
+    .overlay {
+      position: fixed; inset: 0; z-index: 999;
+      background: rgba(0,0,0,0.55); backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      opacity: 0; pointer-events: none; transition: opacity var(--transition);
+    }
+    .overlay.open { opacity: 1; pointer-events: all; }
+    .modal {
+      background: var(--white); border-radius: var(--radius);
+      padding: 40px; max-width: 480px; width: 100%;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.25);
+      transform: translateY(20px); transition: transform var(--transition);
+      max-height: 90vh; overflow-y: auto;
+    }
+    .overlay.open .modal { transform: translateY(0); }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+    .modal-title { font-family: var(--font-display); font-size: 1.4rem; color: var(--text-dark); }
+    .modal-close {
+      width: 34px; height: 34px; border-radius: 50%; border: 1.5px solid var(--border);
+      background: none; font-size: 1.1rem; cursor: pointer; color: var(--text-mid);
+      display: flex; align-items: center; justify-content: center;
+      transition: all var(--transition);
+    }
+    .modal-close:hover { background: var(--red-pale); color: var(--red); border-color: var(--red); }
+
+    /* Login form */
+    .login-form { display: flex; flex-direction: column; gap: 18px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group label { font-size: 0.85rem; font-weight: 700; color: var(--text-mid); }
+    .form-group input, .form-group select {
+      border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+      padding: 11px 14px; font-family: var(--font-body); font-size: 0.95rem;
+      color: var(--text-dark); outline: none; transition: all var(--transition);
+    }
+    .form-group input:focus, .form-group select:focus {
+      border-color: var(--saffron); box-shadow: 0 0 0 3px rgba(232,103,10,0.1);
+    }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 12px 28px; border-radius: 999px; font-family: var(--font-body);
+      font-weight: 700; font-size: 0.95rem; cursor: pointer; border: none;
+      transition: all var(--transition);
+    }
+    .btn-primary { background: linear-gradient(135deg, var(--saffron), var(--saffron-light)); color: #fff; box-shadow: 0 4px 16px rgba(232,103,10,0.3); }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(232,103,10,0.4); }
+    .btn-danger  { background: var(--red-pale); color: var(--red); }
+    .btn-danger:hover { background: var(--red); color: #fff; }
+    .btn-ghost   { background: var(--off-white); color: var(--text-mid); border: 1.5px solid var(--border); }
+    .btn-ghost:hover { border-color: var(--saffron); color: var(--saffron); }
+    .btn-sm      { padding: 7px 16px; font-size: 0.82rem; }
+    .btn-full    { width: 100%; }
+    .login-error { color: var(--red); font-size: 0.85rem; font-weight: 600; display: none; }
+    .login-error.show { display: block; }
+
+    /* Admin panel inside modal */
+    .admin-tabs { display: flex; gap: 8px; margin-bottom: 28px; flex-wrap: wrap; }
+    .admin-tab {
+      padding: 8px 18px; border-radius: 999px; font-weight: 700; font-size: 0.82rem;
+      cursor: pointer; border: 1.5px solid var(--border); background: var(--off-white);
+      color: var(--text-mid); transition: all var(--transition);
+    }
+    .admin-tab.active { background: var(--saffron); border-color: var(--saffron); color: #fff; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* Add member form */
+    .admin-form { display: flex; flex-direction: column; gap: 14px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    /* Edit contribution */
+    .contrib-form-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;
+    }
+
+    /* Members list in admin */
+    .admin-member-list { display: flex; flex-direction: column; gap: 8px; max-height: 320px; overflow-y: auto; }
+    .admin-member-item {
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--off-white); border: 1px solid var(--border); border-radius: var(--radius-sm);
+      padding: 10px 14px;
+    }
+    .admin-member-name { font-weight: 700; font-size: 0.9rem; }
+    .admin-member-actions { display: flex; gap: 6px; }
+
+    .success-msg {
+      background: var(--green-pale); color: var(--green); border: 1px solid rgba(39,174,96,0.25);
+      border-radius: var(--radius-sm); padding: 10px 16px; font-weight: 700; font-size: 0.88rem;
+      display: none; margin-top: 12px;
+    }
+    .success-msg.show { display: block; }
+
+    /* ---- MONTH PROGRESS ---- */
+    .month-progress {
+      background: var(--white); border-radius: var(--radius);
+      box-shadow: var(--shadow-sm); border: 1px solid var(--border);
+      padding: 28px 28px 24px; margin-bottom: 32px;
+    }
+    .progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .progress-title { font-family: var(--font-display); font-size: 1.1rem; color: var(--text-dark); }
+    .progress-months { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
+    .prog-month {
+      background: var(--off-white); border-radius: var(--radius-sm); padding: 14px;
+      border: 1px solid var(--border);
+    }
+    .prog-month-name { font-weight: 700; font-size: 0.82rem; color: var(--text-mid); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.06em; }
+    .prog-bar-wrap { background: #eee; border-radius: 999px; height: 7px; margin-bottom: 6px; }
+    .prog-bar { height: 7px; border-radius: 999px; background: linear-gradient(90deg, var(--green), #2ecc71); transition: width 0.6s ease; }
+    .prog-stats { display: flex; justify-content: space-between; font-size: 0.76rem; color: var(--text-light); }
+
+    /* ---- LAST UPDATED ---- */
+    .last-updated { text-align: right; font-size: 0.78rem; color: var(--text-light); margin-bottom: 12px; }
+
+    /* ---- FOOTER ---- */
+    .page-footer { background: #16111e; color: rgba(255,255,255,0.5); text-align: center; padding: 22px; font-size: 0.84rem; margin-top: 48px; }
+    .page-footer a { color: var(--saffron-light); }
+
+    @media (max-width: 640px) {
+      .topbar { padding: 12px 16px; }
+      .topbar-name { font-size: 0.88rem; }
+      .page-header { padding: 48px 20px 36px; }
+      .main-content { padding: 32px 16px; }
+      .form-row { grid-template-columns: 1fr; }
+      .contrib-form-grid { grid-template-columns: 1fr; }
+      .filters { gap: 6px; }
+      .search-box { width: 100%; margin-left: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ========== TOPBAR ========== -->
+<nav class="topbar">
+  <div class="topbar-brand">
+    <div class="topbar-logo">🕉️</div>
+    <div>
+      <div class="topbar-name">Sanatan Biradari Seva Trust</div>
+      <div class="topbar-sub">Member Contributions</div>
+    </div>
+  </div>
+  <div class="topbar-nav">
+    <a href="index.html">← Back to Website</a>
+    <button class="topbar-nav admin-btn" id="adminLoginBtn" onclick="openAdminLogin()">🔐 Admin</button>
+  </div>
+</nav>
+
+<!-- ========== PAGE HEADER ========== -->
+<div class="page-header">
+  <div class="page-header-tag">💰 Financial Transparency</div>
+  <h1>Member Contributions</h1>
+  <p>Monthly ₹500 per member — Every rupee tracked, every month reported</p>
+</div>
+
+<!-- ========== MAIN CONTENT ========== -->
+<div class="main-content">
+
+  <!-- Summary Cards -->
+  <div class="summary-grid" id="summaryGrid">
+    <div class="summary-card orange">
+      <div class="card-icon">👥</div>
+      <div class="card-label">Total Members</div>
+      <div class="card-value orange" id="statMembers">0</div>
+      <div class="card-sub">Registered members</div>
+    </div>
+    <div class="summary-card green">
+      <div class="card-icon">✅</div>
+      <div class="card-label">Total Collected</div>
+      <div class="card-value green" id="statCollected">₹0</div>
+      <div class="card-sub">All months combined</div>
+    </div>
+    <div class="summary-card blue">
+      <div class="card-icon">📅</div>
+      <div class="card-label">This Month</div>
+      <div class="card-value blue" id="statThisMonth">₹0</div>
+      <div class="card-sub" id="statThisMonthLabel">Current month</div>
+    </div>
+    <div class="summary-card red">
+      <div class="card-icon">⏳</div>
+      <div class="card-label">Pending This Month</div>
+      <div class="card-value red" id="statPending">₹0</div>
+      <div class="card-sub" id="statPendingLabel">Outstanding amount</div>
+    </div>
+    <div class="summary-card gold">
+      <div class="card-icon">📊</div>
+      <div class="card-label">Collection Rate</div>
+      <div class="card-value" id="statRate" style="color:var(--gold)">0%</div>
+      <div class="card-sub">This month average</div>
+    </div>
+  </div>
+
+  <!-- Month Progress -->
+  <div class="month-progress">
+    <div class="progress-header">
+      <div class="progress-title">📈 Month-wise Collection Progress</div>
+    </div>
+    <div class="progress-months" id="progressMonths"></div>
+  </div>
+
+  <!-- Table Controls -->
+  <div class="section-head">
+    <div>
+      <div class="section-title">📋 Detailed Contribution Table</div>
+      <div class="section-sub-text">Click on any amount to mark as paid/pending (admin only)</div>
+    </div>
+    <div id="adminControls" style="display:none; gap:8px; display:none;">
+      <button class="btn btn-primary btn-sm" onclick="openAddMember()">+ Add Member</button>
+      <button class="btn btn-ghost btn-sm" onclick="openEditContrib()">✏️ Edit Month</button>
+    </div>
+  </div>
+
+  <div class="filters">
+    <span class="filter-label">Filter month:</span>
+    <div id="monthChips"></div>
+    <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search member..." oninput="renderTable()" />
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot green"></div> Paid (₹500)</div>
+    <div class="legend-item"><div class="legend-dot red"></div> Pending</div>
+    <div class="legend-item"><div class="legend-dot gray"></div> Not applicable</div>
+  </div>
+
+  <div class="last-updated" id="lastUpdated"></div>
+
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table id="contribTable">
+        <thead><tr id="tableHead"></tr></thead>
+        <tbody id="tableBody"></tbody>
+        <tfoot><tr class="tfoot-row" id="tableFoot"></tr></tfoot>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============================================================
+     ADMIN LOGIN OVERLAY
+     ============================================================ -->
+<div class="overlay" id="loginOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🔐 Admin Login</div>
+      <button class="modal-close" onclick="closeOverlay('loginOverlay')">✕</button>
+    </div>
+    <div class="login-form">
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="loginUser" placeholder="Enter username" autocomplete="username" />
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="loginPass" placeholder="Enter password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()" />
+      </div>
+      <div class="login-error" id="loginError">❌ Incorrect username or password.</div>
+      <button class="btn btn-primary btn-full" onclick="doLogin()">Login →</button>
+      <p style="text-align:center; font-size:0.8rem; color:var(--text-light);">Default: admin / seva@2024</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     ADMIN PANEL OVERLAY
+     ============================================================ -->
+<div class="overlay" id="adminOverlay">
+  <div class="modal" style="max-width:580px;">
+    <div class="modal-header">
+      <div class="modal-title">⚙️ Admin Panel</div>
+      <button class="modal-close" onclick="closeOverlay('adminOverlay')">✕</button>
+    </div>
+
+    <div class="admin-tabs">
+      <div class="admin-tab active" onclick="switchTab('tabMembers')">👥 Members</div>
+      <div class="admin-tab" onclick="switchTab('tabContrib')">💰 Contributions</div>
+      <div class="admin-tab" onclick="switchTab('tabMonths')">📅 Months</div>
+      <div class="admin-tab" onclick="switchTab('tabSettings')">🔑 Settings</div>
+    </div>
+
+    <!-- TAB: Members -->
+    <div class="tab-panel active" id="tabMembers">
+      <div class="admin-form" id="addMemberForm">
+        <div style="font-weight:700; margin-bottom:4px;">Add New Member</div>
+        <div class="form-group">
+          <label>Member Name *</label>
+          <input type="text" id="newMemberName" placeholder="Full name" />
+        </div>
+        <button class="btn btn-primary" onclick="addMember()">+ Add Member</button>
+        <div class="success-msg" id="memberSuccess">✅ Member added successfully!</div>
+      </div>
+      <hr style="margin: 20px 0; border-color: var(--border);" />
+      <div style="font-weight:700; margin-bottom:12px;">Current Members (<span id="memberCount">0</span>)</div>
+      <div class="admin-member-list" id="adminMemberList"></div>
+    </div>
+
+    <!-- TAB: Contributions -->
+    <div class="tab-panel" id="tabContrib">
+      <div style="font-weight:700; margin-bottom:14px;">Update Member Contribution</div>
+      <div class="contrib-form-grid">
+        <div class="form-group">
+          <label>Member</label>
+          <select id="editMember"></select>
+        </div>
+        <div class="form-group">
+          <label>Month</label>
+          <select id="editMonth"></select>
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="editStatus">
+            <option value="paid">✅ Paid (₹500)</option>
+            <option value="pending">❌ Pending</option>
+            <option value="extra">➕ Extra Amount</option>
+            <option value="na">— Not Applicable</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Amount (if extra)</label>
+          <input type="number" id="editAmount" placeholder="500" value="500" />
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="saveContribution()">💾 Save Contribution</button>
+      <div class="success-msg" id="contribSuccess">✅ Contribution updated!</div>
+
+      <hr style="margin: 20px 0; border-color: var(--border);" />
+      <div style="font-weight:700; margin-bottom:12px;">Bulk Update — Mark All Paid for Month</div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end;">
+        <div class="form-group" style="flex:1; min-width:140px;">
+          <label>Month</label>
+          <select id="bulkMonth"></select>
+        </div>
+        <button class="btn btn-ghost" onclick="markAllPaid()">✅ Mark All Paid</button>
+        <button class="btn btn-danger btn-sm" onclick="markAllPending()">❌ Mark All Pending</button>
+      </div>
+      <div class="success-msg" id="bulkSuccess">✅ All updated!</div>
+    </div>
+
+    <!-- TAB: Months -->
+    <div class="tab-panel" id="tabMonths">
+      <div style="font-weight:700; margin-bottom:14px;">Add New Month Column</div>
+      <div class="admin-form">
+        <div class="form-group">
+          <label>Month Name (e.g. May 26)</label>
+          <input type="text" id="newMonthName" placeholder="May 26" />
+        </div>
+        <button class="btn btn-primary" onclick="addMonth()">+ Add Month</button>
+        <div class="success-msg" id="monthSuccess">✅ Month added!</div>
+      </div>
+      <hr style="margin: 20px 0; border-color: var(--border);" />
+      <div style="font-weight:700; margin-bottom:12px;">Existing Months</div>
+      <div id="monthList" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
+    </div>
+
+    <!-- TAB: Settings -->
+    <div class="tab-panel" id="tabSettings">
+      <div style="font-weight:700; margin-bottom:14px;">Change Admin Password</div>
+      <div class="admin-form">
+        <div class="form-group">
+          <label>Current Password</label>
+          <input type="password" id="curPass" placeholder="Current password" />
+        </div>
+        <div class="form-group">
+          <label>New Password</label>
+          <input type="password" id="newPass" placeholder="New password (min 6 chars)" />
+        </div>
+        <div class="form-group">
+          <label>Confirm New Password</label>
+          <input type="password" id="confPass" placeholder="Repeat new password" />
+        </div>
+        <button class="btn btn-primary" onclick="changePassword()">🔑 Update Password</button>
+        <div class="success-msg" id="passSuccess">✅ Password changed!</div>
+        <div class="login-error" id="passError" style="margin-top:8px;"></div>
+      </div>
+      <hr style="margin: 20px 0; border-color: var(--border);" />
+      <div style="font-weight:700; margin-bottom:12px; color:var(--red);">⚠️ Danger Zone</div>
+      <button class="btn btn-danger" onclick="if(confirm('Reset ALL data? This cannot be undone!')) resetAll()">🗑️ Reset All Data</button>
+      <p style="font-size:0.8rem; color:var(--text-light); margin-top:8px;">This will delete all members and contributions.</p>
+    </div>
+
+  </div>
+</div>
+
+<footer class="page-footer">
+  🕉️ Sanatan Biradari Seva Trust &nbsp;|&nbsp; Contributions Dashboard &nbsp;|&nbsp;
+  <a href="index.html">← Back to main site</a>
+</footer>
+
+<script>
+// ============================================================
+// DATA LAYER — localStorage
+// ============================================================
+const STORE_KEY   = 'sbst_data';
+const PASS_KEY    = 'sbst_pass';
+const SESSION_KEY = 'sbst_admin';
+
+const DEFAULT_PASS = 'seva@2024';
+const DEFAULT_USER = 'admin';
+
+// Seed data from the spreadsheet
+const SEED_MEMBERS = [
+  'Arjun Sambyal Bhaiya','Bhanu Jamwal','Chitranjan Smabyal',
+  'Mohit Sharma','Navdeep Billoria','Rahul Singh',
+  'Rajeshwar Singh','Rohit Sharma','Sanjay Singh',
+  'Sahil Sharma','Shubham Gupta','Shivanshu Sharma',
+  'Sohit Manhas','Tarun Sharma','Vishal Sharma',
+  'Vikrant Andotra','Pankaj','Bhaskar','Varinder'
+];
+const SEED_MONTHS = ['Aug','Sept','OCT','Nov','DEC','Jan 26','Feb 26','March 26','April 26'];
+
+// Contribution data from spreadsheet (member index → month index → amount|'pending'|'na')
+const SEED_CONTRIBS = {
+  // Name: [Aug,Sept,OCT,Nov,DEC,Jan26,Feb26,March26,April26]
+  'Arjun Sambyal Bhaiya': [500,500,500,500,500,500,500,'na','na'],
+  'Bhanu Jamwal':         [500,500,500,500,500,500,500,500,'na'],
+  'Chitranjan Smabyal':   [500,500,500,500,500,500,'pending','na','na'],
+  'Mohit Sharma':         [500,500,550,500,500,500,500,500,'na'],
+  'Navdeep Billoria':     [500,500,500,500,500,500,500,500,500],
+  'Rahul Singh':          [500,500,500,500,500,500,500,'na','na'],
+  'Rajeshwar Singh':      [500,1100,500,500,500,500,500,500,500],
+  'Rohit Sharma':         [500,500,500,500,500,500,500,500,500],
+  'Sanjay Singh':         [500,500,500,500,500,500,500,'na','na'],
+  'Sahil Sharma':         [500,500,500,500,500,500,500,'na','na'],
+  'Shubham Gupta':        [500,500,500,500,500,500,500,500,500],
+  'Shivanshu Sharma':     [500,500,1000,500,500,500,1000,500,500],
+  'Sohit Manhas':         [500,500,500,500,500,500,500,500,500],
+  'Tarun Sharma':         [500,500,500,500,500,500,500,'na','na'],
+  'Vishal Sharma':        [500,500,500,500,500,500,500,'na','na'],
+  'Vikrant Andotra':      [500,500,550,500,500,500,500,500,500],
+  'Pankaj':               [500,500,500,500,500,500,'pending','na','na'],
+  'Bhaskar':              [500,500,500,500,500,500,500,500,500],
+  'Varinder':             [500,500,500,500,500,500,500,'na','na'],
+};
+
+function loadData() {
+  const raw = localStorage.getItem(STORE_KEY);
+  if (!raw) return initData();
+  try { return JSON.parse(raw); } catch(e) { return initData(); }
+}
+
+function initData() {
+  const data = {
+    members: SEED_MEMBERS,
+    months: SEED_MONTHS,
+    contributions: {},  // { memberName: { monthName: amount|'pending'|'na' } }
+    lastUpdated: new Date().toISOString()
+  };
+  // Seed contributions
+  SEED_MEMBERS.forEach(m => {
+    data.contributions[m] = {};
+    const vals = SEED_CONTRIBS[m] || [];
+    SEED_MONTHS.forEach((mo, i) => {
+      data.contributions[m][mo] = vals[i] !== undefined ? vals[i] : 'na';
+    });
+  });
+  saveData(data);
+  return data;
+}
+
+function saveData(data) {
+  data.lastUpdated = new Date().toISOString();
+  localStorage.setItem(STORE_KEY, JSON.stringify(data));
+}
+
+function getPass() {
+  return localStorage.getItem(PASS_KEY) || DEFAULT_PASS;
+}
+
+// ============================================================
+// STATE
+// ============================================================
+let DATA = loadData();
+let isAdmin = sessionStorage.getItem(SESSION_KEY) === '1';
+let activeMonthFilter = 'ALL';
+
+// ============================================================
+// RENDER
+// ============================================================
+function render() {
+  updateSummaryCards();
+  renderMonthProgress();
+  renderMonthChips();
+  renderTable();
+  updateLastUpdated();
+  updateAdminUI();
+}
+
+function updateLastUpdated() {
+  const el = document.getElementById('lastUpdated');
+  if (DATA.lastUpdated) {
+    const d = new Date(DATA.lastUpdated);
+    el.textContent = `Last updated: ${d.toLocaleString('en-IN')}`;
+  }
+}
+
+function updateSummaryCards() {
+  const members = DATA.members;
+  const months  = DATA.months;
+  const contribs= DATA.contributions;
+
+  document.getElementById('statMembers').textContent = members.length;
+
+  // Total collected (all time, all members)
+  let total = 0;
+  members.forEach(m => {
+    months.forEach(mo => {
+      const v = (contribs[m] || {})[mo];
+      if (typeof v === 'number') total += v;
+    });
+  });
+  document.getElementById('statCollected').textContent = '₹' + total.toLocaleString('en-IN');
+
+  // This month (latest month)
+  const latestMonth = months[months.length - 1];
+  let thisMonthTotal = 0, thisMonthPending = 0, applicable = 0;
+  members.forEach(m => {
+    const v = (contribs[m] || {})[latestMonth];
+    if (v === 'na') return;
+    applicable++;
+    if (typeof v === 'number') thisMonthTotal += v;
+    else thisMonthPending += 500;
+  });
+  document.getElementById('statThisMonth').textContent = '₹' + thisMonthTotal.toLocaleString('en-IN');
+  document.getElementById('statThisMonthLabel').textContent = latestMonth;
+  document.getElementById('statPending').textContent = '₹' + thisMonthPending.toLocaleString('en-IN');
+  document.getElementById('statPendingLabel').textContent = `${latestMonth} pending`;
+  const rate = applicable > 0 ? Math.round(((applicable - (thisMonthPending/500)) / applicable) * 100) : 0;
+  document.getElementById('statRate').textContent = rate + '%';
+}
+
+function renderMonthProgress() {
+  const members = DATA.members;
+  const months  = DATA.months;
+  const contribs= DATA.contributions;
+  const wrap = document.getElementById('progressMonths');
+  wrap.innerHTML = '';
+
+  months.forEach(mo => {
+    let paid = 0, total = 0;
+    members.forEach(m => {
+      const v = (contribs[m] || {})[mo];
+      if (v === 'na') return;
+      total++;
+      if (typeof v === 'number') paid++;
+    });
+    const pct = total > 0 ? Math.round((paid / total) * 100) : 0;
+    const amount = members.reduce((s, m) => {
+      const v = (contribs[m] || {})[mo];
+      return s + (typeof v === 'number' ? v : 0);
+    }, 0);
+
+    wrap.innerHTML += `
+      <div class="prog-month">
+        <div class="prog-month-name">${mo}</div>
+        <div class="prog-bar-wrap"><div class="prog-bar" style="width:${pct}%"></div></div>
+        <div class="prog-stats">
+          <span>${paid}/${total} paid</span>
+          <span>₹${amount.toLocaleString('en-IN')}</span>
+        </div>
+      </div>`;
+  });
+}
+
+function renderMonthChips() {
+  const wrap = document.getElementById('monthChips');
+  wrap.innerHTML = '';
+  const all = document.createElement('div');
+  all.className = 'month-chip' + (activeMonthFilter==='ALL' ? ' active' : '');
+  all.textContent = 'All Months';
+  all.onclick = () => { activeMonthFilter='ALL'; renderMonthChips(); renderTable(); };
+  wrap.appendChild(all);
+
+  DATA.months.forEach(mo => {
+    const chip = document.createElement('div');
+    chip.className = 'month-chip' + (activeMonthFilter===mo ? ' active' : '');
+    chip.textContent = mo;
+    chip.onclick = () => { activeMonthFilter=mo; renderMonthChips(); renderTable(); };
+    wrap.appendChild(chip);
+  });
+}
+
+function renderTable() {
+  const search    = document.getElementById('searchBox').value.toLowerCase().trim();
+  const members   = DATA.members.filter(m => m.toLowerCase().includes(search));
+  const months    = activeMonthFilter === 'ALL' ? DATA.months : [activeMonthFilter];
+  const contribs  = DATA.contributions;
+
+  // Head
+  const head = document.getElementById('tableHead');
+  head.innerHTML = '<th>Member Name</th>' +
+    months.map(m => `<th>${m}</th>`).join('') +
+    '<th>Total</th>';
+
+  // Body
+  const body = document.getElementById('tableBody');
+  body.innerHTML = '';
+  members.forEach(m => {
+    let rowTotal = 0;
+    const cells = months.map(mo => {
+      const v = (contribs[m] || {})[mo];
+      if (v === 'na' || v === undefined) return `<td class="cell-na">—</td>`;
+      if (v === 'pending') return `<td><span class="badge-pending">Pending</span></td>`;
+      rowTotal += v;
+      return `<td class="cell-paid">₹${v.toLocaleString('en-IN')}</td>`;
+    }).join('');
+    body.innerHTML += `<tr>
+      <td>${m}</td>
+      ${cells}
+      <td class="cell-total">₹${rowTotal.toLocaleString('en-IN')}</td>
+    </tr>`;
+  });
+
+  // Foot totals
+  const foot = document.getElementById('tableFoot');
+  const monthTotals = months.map(mo =>
+    members.reduce((s, m) => {
+      const v = (contribs[m] || {})[mo];
+      return s + (typeof v === 'number' ? v : 0);
+    }, 0)
+  );
+  const grandTotal = monthTotals.reduce((a, b) => a + b, 0);
+  foot.innerHTML = '<td>TOTAL</td>' +
+    monthTotals.map(t => `<td>₹${t.toLocaleString('en-IN')}</td>`).join('') +
+    `<td class="cell-total">₹${grandTotal.toLocaleString('en-IN')}</td>`;
+}
+
+// ============================================================
+// ADMIN AUTH
+// ============================================================
+function openAdminLogin() {
+  if (isAdmin) { openAdminPanel(); return; }
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginPass').value = '';
+  document.getElementById('loginError').classList.remove('show');
+  document.getElementById('loginOverlay').classList.add('open');
+}
+
+function doLogin() {
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value;
+  if (u === DEFAULT_USER && p === getPass()) {
+    isAdmin = true;
+    sessionStorage.setItem(SESSION_KEY, '1');
+    closeOverlay('loginOverlay');
+    updateAdminUI();
+    openAdminPanel();
+  } else {
+    document.getElementById('loginError').classList.add('show');
+  }
+}
+
+function updateAdminUI() {
+  const btn = document.getElementById('adminLoginBtn');
+  const ctrl = document.getElementById('adminControls');
+  if (isAdmin) {
+    btn.textContent = '⚙️ Admin Panel';
+    btn.onclick = openAdminPanel;
+    if (ctrl) ctrl.style.display = 'flex';
+  } else {
+    btn.textContent = '🔐 Admin';
+    btn.onclick = openAdminLogin;
+    if (ctrl) ctrl.style.display = 'none';
+  }
+}
+
+function openAdminPanel() {
+  if (!isAdmin) { openAdminLogin(); return; }
+  populateAdminDropdowns();
+  renderAdminMemberList();
+  renderMonthList();
+  switchTab('tabMembers');
+  document.getElementById('adminOverlay').classList.add('open');
+}
+
+function closeOverlay(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+// Close on backdrop click
+document.querySelectorAll('.overlay').forEach(ov => {
+  ov.addEventListener('click', e => { if (e.target === ov) ov.classList.remove('open'); });
+});
+
+// ============================================================
+// ADMIN FUNCTIONS
+// ============================================================
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const idx = ['tabMembers','tabContrib','tabMonths','tabSettings'].indexOf(id);
+  document.querySelectorAll('.admin-tab')[idx].classList.add('active');
+}
+
+function addMember() {
+  const name = document.getElementById('newMemberName').value.trim();
+  if (!name) return;
+  if (DATA.members.includes(name)) { alert('Member already exists!'); return; }
+  DATA.members.push(name);
+  DATA.contributions[name] = {};
+  DATA.months.forEach(mo => DATA.contributions[name][mo] = 'pending');
+  saveData(DATA);
+  document.getElementById('newMemberName').value = '';
+  showSuccess('memberSuccess');
+  populateAdminDropdowns();
+  renderAdminMemberList();
+  document.getElementById('memberCount').textContent = DATA.members.length;
+  render();
+}
+
+function removeMember(name) {
+  if (!confirm(`Remove "${name}" from all records?`)) return;
+  DATA.members = DATA.members.filter(m => m !== name);
+  delete DATA.contributions[name];
+  saveData(DATA);
+  renderAdminMemberList();
+  populateAdminDropdowns();
+  render();
+}
+
+function renderAdminMemberList() {
+  const list = document.getElementById('adminMemberList');
+  document.getElementById('memberCount').textContent = DATA.members.length;
+  list.innerHTML = DATA.members.map(m => `
+    <div class="admin-member-item">
+      <span class="admin-member-name">👤 ${m}</span>
+      <div class="admin-member-actions">
+        <button class="btn btn-danger btn-sm" onclick="removeMember('${m.replace(/'/g,"\\'")}')">🗑️</button>
+      </div>
+    </div>`).join('');
+}
+
+function addMonth() {
+  const name = document.getElementById('newMonthName').value.trim();
+  if (!name) return;
+  if (DATA.months.includes(name)) { alert('Month already exists!'); return; }
+  DATA.months.push(name);
+  DATA.members.forEach(m => { DATA.contributions[m][name] = 'pending'; });
+  saveData(DATA);
+  document.getElementById('newMonthName').value = '';
+  showSuccess('monthSuccess');
+  renderMonthList();
+  populateAdminDropdowns();
+  render();
+}
+
+function removeMonth(mo) {
+  if (!confirm(`Remove month "${mo}" from all records?`)) return;
+  DATA.months = DATA.months.filter(m => m !== mo);
+  DATA.members.forEach(m => delete DATA.contributions[m][mo]);
+  saveData(DATA);
+  renderMonthList();
+  populateAdminDropdowns();
+  render();
+}
+
+function renderMonthList() {
+  const wrap = document.getElementById('monthList');
+  wrap.innerHTML = DATA.months.map(mo => `
+    <div style="display:flex;align-items:center;gap:6px;background:var(--off-white);border:1px solid var(--border);border-radius:8px;padding:6px 12px;">
+      <span style="font-weight:700;font-size:0.88rem;">${mo}</span>
+      <button class="btn btn-danger btn-sm" style="padding:3px 8px;" onclick="removeMonth('${mo}')">✕</button>
+    </div>`).join('');
+}
+
+function populateAdminDropdowns() {
+  ['editMember'].forEach(id => {
+    const sel = document.getElementById(id);
+    sel.innerHTML = DATA.members.map(m => `<option value="${m}">${m}</option>`).join('');
+  });
+  ['editMonth','bulkMonth'].forEach(id => {
+    const sel = document.getElementById(id);
+    sel.innerHTML = DATA.months.map(mo => `<option value="${mo}">${mo}</option>`).join('');
+    // Default to latest month
+    sel.value = DATA.months[DATA.months.length - 1];
+  });
+}
+
+function saveContribution() {
+  const member = document.getElementById('editMember').value;
+  const month  = document.getElementById('editMonth').value;
+  const status = document.getElementById('editStatus').value;
+  const amount = parseInt(document.getElementById('editAmount').value) || 500;
+  if (!DATA.contributions[member]) DATA.contributions[member] = {};
+  if (status === 'paid') DATA.contributions[member][month] = 500;
+  else if (status === 'extra') DATA.contributions[member][month] = amount;
+  else if (status === 'pending') DATA.contributions[member][month] = 'pending';
+  else DATA.contributions[member][month] = 'na';
+  saveData(DATA);
+  showSuccess('contribSuccess');
+  render();
+}
+
+function markAllPaid() {
+  const month = document.getElementById('bulkMonth').value;
+  DATA.members.forEach(m => { DATA.contributions[m][month] = 500; });
+  saveData(DATA);
+  showSuccess('bulkSuccess');
+  render();
+}
+
+function markAllPending() {
+  const month = document.getElementById('bulkMonth').value;
+  DATA.members.forEach(m => { DATA.contributions[m][month] = 'pending'; });
+  saveData(DATA);
+  showSuccess('bulkSuccess');
+  render();
+}
+
+function changePassword() {
+  const cur  = document.getElementById('curPass').value;
+  const nw   = document.getElementById('newPass').value;
+  const conf = document.getElementById('confPass').value;
+  const errEl = document.getElementById('passError');
+  errEl.classList.remove('show');
+  if (cur !== getPass()) { errEl.textContent = '❌ Current password incorrect.'; errEl.classList.add('show'); return; }
+  if (nw.length < 6) { errEl.textContent = '❌ New password must be at least 6 characters.'; errEl.classList.add('show'); return; }
+  if (nw !== conf) { errEl.textContent = '❌ Passwords do not match.'; errEl.classList.add('show'); return; }
+  localStorage.setItem(PASS_KEY, nw);
+  showSuccess('passSuccess');
+  document.getElementById('curPass').value = '';
+  document.getElementById('newPass').value = '';
+  document.getElementById('confPass').value = '';
+}
+
+function resetAll() {
+  localStorage.removeItem(STORE_KEY);
+  localStorage.removeItem(PASS_KEY);
+  sessionStorage.removeItem(SESSION_KEY);
+  location.reload();
+}
+
+function openAddMember() { openAdminPanel(); switchTab('tabMembers'); }
+function openEditContrib() { openAdminPanel(); switchTab('tabContrib'); }
+
+function showSuccess(id) {
+  const el = document.getElementById(id);
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ============================================================
+// INIT
+// ============================================================
+render();
+</script>
+</body>
+</html>
