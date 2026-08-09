@@ -1,5 +1,5 @@
 const bcrypt = require('bcryptjs');
-const db = require('./db');
+const { db } = require('./db');
 
 const DEFAULT_USER = process.env.ADMIN_USER || 'admin';
 const DEFAULT_PASS = process.env.ADMIN_PASS || 'seva@2024';
@@ -51,53 +51,64 @@ const SEED_CONTRIBS = {
   'Varinder':             [500,500,500,500,500,500,500,500,500,500,'pending','pending','pending'],
 };
 
-function seed() {
-  const memberCount = db.prepare('SELECT COUNT(*) c FROM members').get().c;
+async function seed() {
+  const memberCount = (await db.execute('SELECT COUNT(*) c FROM members')).rows[0].c;
   if (memberCount > 0) {
     console.log('Database already seeded, skipping.');
     return;
   }
 
-  const insertMember = db.prepare('INSERT INTO members (name, sort_order) VALUES (?, ?)');
-  const insertMonth = db.prepare('INSERT INTO months (name, year, sort_order) VALUES (?, ?, ?)');
-  const insertContrib = db.prepare(
-    'INSERT INTO contributions (member_id, month_id, status, amount) VALUES (?, ?, ?, ?)'
-  );
+  const tx = await db.transaction('write');
+  try {
+    const memberIds = {};
+    const monthIdsByIndex = [];
 
-  const memberIds = {};
-  const monthIdsByIndex = [];
+    for (let i = 0; i < SEED_MEMBERS.length; i++) {
+      const name = SEED_MEMBERS[i];
+      const info = await tx.execute({
+        sql: 'INSERT INTO members (name, sort_order) VALUES (?, ?)',
+        args: [name, i],
+      });
+      memberIds[name] = Number(info.lastInsertRowid);
+    }
 
-  const tx = db.transaction(() => {
-    SEED_MEMBERS.forEach((name, i) => {
-      const info = insertMember.run(name, i);
-      memberIds[name] = info.lastInsertRowid;
-    });
-    SEED_MONTHS.forEach((mo, i) => {
-      const info = insertMonth.run(mo.name, mo.year, i);
-      monthIdsByIndex[i] = info.lastInsertRowid;
-    });
-    SEED_MEMBERS.forEach(name => {
+    for (let i = 0; i < SEED_MONTHS.length; i++) {
+      const mo = SEED_MONTHS[i];
+      const info = await tx.execute({
+        sql: 'INSERT INTO months (name, year, sort_order) VALUES (?, ?, ?)',
+        args: [mo.name, mo.year, i],
+      });
+      monthIdsByIndex[i] = Number(info.lastInsertRowid);
+    }
+
+    for (const name of SEED_MEMBERS) {
       const vals = SEED_CONTRIBS[name] || [];
-      SEED_MONTHS.forEach((mo, i) => {
+      for (let i = 0; i < SEED_MONTHS.length; i++) {
         const v = vals[i] !== undefined ? vals[i] : 'na';
         const monthId = monthIdsByIndex[i];
-        if (v === 'pending' || v === 'na') {
-          insertContrib.run(memberIds[name], monthId, v, null);
-        } else {
-          insertContrib.run(memberIds[name], monthId, 'paid', v);
-        }
-      });
-    });
-  });
-  tx();
+        const args = (v === 'pending' || v === 'na')
+          ? [memberIds[name], monthId, v, null]
+          : [memberIds[name], monthId, 'paid', v];
+        await tx.execute({
+          sql: 'INSERT INTO contributions (member_id, month_id, status, amount) VALUES (?, ?, ?, ?)',
+          args,
+        });
+      }
+    }
+
+    await tx.commit();
+  } catch (e) {
+    await tx.rollback();
+    throw e;
+  }
 
   const passHash = bcrypt.hashSync(DEFAULT_PASS, 10);
-  db.prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)').run('admin_user', DEFAULT_USER);
-  db.prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)').run('admin_pass_hash', passHash);
-  db.prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)').run('last_updated', new Date().toISOString());
+  await db.execute({ sql: 'INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', args: ['admin_user', DEFAULT_USER] });
+  await db.execute({ sql: 'INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', args: ['admin_pass_hash', passHash] });
+  await db.execute({ sql: 'INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', args: ['last_updated', new Date().toISOString()] });
 
   console.log(`Seeded ${SEED_MEMBERS.length} members, ${SEED_MONTHS.length} months.`);
   console.log(`Admin user: ${DEFAULT_USER} (password set from ADMIN_PASS env or default — change it after first login).`);
 }
 
-seed();
+module.exports = seed;

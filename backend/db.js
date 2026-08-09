@@ -1,13 +1,15 @@
 const path = require('path');
-const Database = require('better-sqlite3');
+const { createClient } = require('@libsql/client');
 
-const DB_PATH = path.join(__dirname, 'data.sqlite');
-const db = new Database(DB_PATH);
+// Defaults to a local file (no account needed) for local dev.
+// Set DATABASE_URL (+ DATABASE_AUTH_TOKEN) to a Turso database in production
+// so data survives Render's ephemeral disk / free-tier restarts.
+const url = process.env.DATABASE_URL || `file:${path.join(__dirname, 'data.sqlite')}`;
+const authToken = process.env.DATABASE_AUTH_TOKEN;
 
-db.pragma('journal_mode = WAL');
-db.pragma('foreign_keys = ON');
+const db = createClient(authToken ? { url, authToken } : { url });
 
-db.exec(`
+const SCHEMA = `
   CREATE TABLE IF NOT EXISTS members (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL UNIQUE,
@@ -34,6 +36,19 @@ db.exec(`
     key TEXT PRIMARY KEY,
     value TEXT NOT NULL
   );
-`);
 
-module.exports = db;
+  CREATE TABLE IF NOT EXISTS contact_submissions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    message TEXT,
+    created_at TEXT NOT NULL
+  );
+`;
+
+async function initSchema() {
+  await db.execute('PRAGMA foreign_keys = ON');
+  await db.executeMultiple(SCHEMA);
+}
+
+module.exports = { db, initSchema };
