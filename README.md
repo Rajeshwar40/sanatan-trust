@@ -36,8 +36,17 @@ This repo includes a `render.yaml` Blueprint:
 4. Deploy. Your site is live at `https://<service-name>.onrender.com`.
 
 **Free tier caveats:**
-- No persistent disk — `data.sqlite` resets to the seeded data on every redeploy (and possibly after long idle periods). Any admin edits made in between are lost when that happens. Re-add them after each deploy, or upgrade to a paid Starter plan + disk for real persistence.
+- No persistent disk — `data.sqlite` resets to whatever's in `seed.js` on every redeploy (and possibly after long idle periods). Any admin edits made since the last push are lost when that happens, unless you bake them into `seed.js` first (see below). Upgrading to a paid Starter plan + disk avoids this entirely.
 - The free service spins down after ~15 minutes of inactivity; the first request after that takes ~30–50s to wake back up.
+
+**Before pushing a change that will trigger a redeploy**, snapshot whatever real data currently exists (local or live) into `seed.js` so the redeploy doesn't roll it back:
+
+```bash
+cd backend
+node scripts/export-seed.js
+```
+
+This prints `SEED_MEMBERS` / `SEED_MONTHS` / `SEED_CONTRIBS` reflecting the current database — paste them over the matching blocks in `seed.js`, then commit and push as usual.
 
 ## 📄 License
 This website is created for the exclusive use of Sanatan Biradari Seva Trust.
