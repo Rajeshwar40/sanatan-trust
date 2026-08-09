@@ -15,6 +15,8 @@ const PORT = process.env.PORT || 4000;
 const ORIGIN = process.env.CORS_ORIGIN || 'http://localhost:5500';
 const isProd = process.env.NODE_ENV === 'production';
 
+if (isProd) app.set('trust proxy', 1); // behind Render's proxy: use X-Forwarded-For for req.ip
+
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({ origin: ORIGIN, credentials: true }));

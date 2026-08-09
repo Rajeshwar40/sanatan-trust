@@ -26,5 +26,18 @@ On first run, `backend/seed.js` seeds the SQLite database (`backend/data.sqlite`
 
 Any Node hosting works (Render, Railway, Fly.io, a VPS). Set `NODE_ENV=production`, a strong `JWT_SECRET`, and serve behind HTTPS so the auth cookie's `secure` flag applies.
 
+### Render (free tier)
+
+This repo includes a `render.yaml` Blueprint:
+
+1. Push to GitHub (already done).
+2. On [render.com](https://render.com), **New → Blueprint**, connect this repo.
+3. Render reads `render.yaml` and creates a free Web Service. It'll prompt you to fill in `ADMIN_PASS` (not stored in the repo); `JWT_SECRET` is auto-generated.
+4. Deploy. Your site is live at `https://<service-name>.onrender.com`.
+
+**Free tier caveats:**
+- No persistent disk — `data.sqlite` resets to the seeded data on every redeploy (and possibly after long idle periods). Any admin edits made in between are lost when that happens. Re-add them after each deploy, or upgrade to a paid Starter plan + disk for real persistence.
+- The free service spins down after ~15 minutes of inactivity; the first request after that takes ~30–50s to wake back up.
+
 ## 📄 License
 This website is created for the exclusive use of Sanatan Biradari Seva Trust.
