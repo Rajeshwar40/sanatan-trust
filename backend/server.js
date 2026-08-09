@@ -222,6 +222,37 @@ app.post('/api/contributions/bulk', requireAdmin, (req, res) => {
   res.json({ ok: true });
 });
 
+// Bulk entry: set a (possibly different) status/amount per member for one month in a single save.
+// Works for any month, past or future — lets an admin fill in a whole month's contributions at once.
+app.put('/api/contributions/batch', requireAdmin, (req, res) => {
+  const { monthId, entries } = req.body || {};
+  const moId = parseInt(monthId, 10);
+  const month = db.prepare('SELECT id FROM months WHERE id = ?').get(moId);
+  if (!month) return res.status(404).json({ error: 'Unknown month.' });
+  if (!Array.isArray(entries) || !entries.length) {
+    return res.status(400).json({ error: 'entries must be a non-empty array.' });
+  }
+
+  const memberIds = new Set(db.prepare('SELECT id FROM members').all().map(m => m.id));
+  const upsert = db.prepare(`
+    INSERT INTO contributions (member_id, month_id, status, amount)
+    VALUES (?, ?, ?, ?)
+    ON CONFLICT(member_id, month_id) DO UPDATE SET status = excluded.status, amount = excluded.amount
+  `);
+
+  const tx = db.transaction(() => {
+    entries.forEach(e => {
+      const mId = parseInt(e.memberId, 10);
+      if (!memberIds.has(mId) || !['paid', 'pending', 'na', 'extra'].includes(e.status)) return;
+      const amount = e.status === 'paid' ? 500 : e.status === 'extra' ? (parseInt(e.amount, 10) || 500) : null;
+      upsert.run(mId, moId, e.status, amount);
+    });
+  });
+  tx();
+  touchLastUpdated();
+  res.json({ ok: true });
+});
+
 // ============================================================
 // DANGER ZONE
 // ============================================================

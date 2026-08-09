@@ -543,6 +543,17 @@
         <button class="btn btn-danger btn-sm" onclick="markAllPending()">❌ Mark All Pending</button>
       </div>
       <div class="success-msg" id="bulkSuccess">✅ All updated!</div>
+
+      <hr style="margin: 20px 0; border-color: var(--border);" />
+      <div style="font-weight:700; margin-bottom:4px;">Bulk Entry — Set Amounts for Multiple Members</div>
+      <p style="font-size:0.8rem; color:var(--text-light); margin-bottom:14px;">Pick any month (past or future), edit as many members as you like, then save them all at once.</p>
+      <div class="form-group" style="margin-bottom:14px;">
+        <label>Month</label>
+        <select id="batchMonth" onchange="loadBatchMonth()"></select>
+      </div>
+      <div id="batchRows" style="display:flex; flex-direction:column; max-height:340px; overflow-y:auto; border:1px solid var(--border); border-radius:var(--radius-sm);"></div>
+      <button class="btn btn-primary" style="margin-top:14px;" onclick="saveBatch()">💾 Save All</button>
+      <div class="success-msg" id="batchSuccess">✅ All members updated for this month!</div>
     </div>
 
     <!-- TAB: Months -->
@@ -990,7 +1001,7 @@ function populateAdminDropdowns() {
   const memberSel = document.getElementById('editMember');
   memberSel.innerHTML = DATA.members.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
 
-  ['editMonth', 'bulkMonth'].forEach(id => {
+  ['editMonth', 'bulkMonth', 'batchMonth'].forEach(id => {
     const sel = document.getElementById(id);
     sel.innerHTML = DATA.months.map(mo => `<option value="${mo.id}">${mo.name} ${mo.year}</option>`).join('');
     if (DATA.months.length) sel.value = DATA.months[DATA.months.length - 1].id;
@@ -1002,6 +1013,58 @@ function populateAdminDropdowns() {
     const latestYear = DATA.months.length ? DATA.months[DATA.months.length - 1].year : new Date().getFullYear();
     yearInput.placeholder = String(latestYear);
   }
+
+  loadBatchMonth();
+}
+
+// ============================================================
+// BULK ENTRY — edit many members' contributions for one month at once
+// ============================================================
+function loadBatchMonth() {
+  const monthSel = document.getElementById('batchMonth');
+  const wrap = document.getElementById('batchRows');
+  if (!monthSel || !monthSel.value) { if (wrap) wrap.innerHTML = ''; return; }
+  const monthId = parseInt(monthSel.value, 10);
+
+  wrap.innerHTML = DATA.members.map(m => {
+    const v = contribFor(m.id, monthId);
+    let status = 'na', amount = 500;
+    if (v === 'pending') status = 'pending';
+    else if (typeof v === 'number') { status = v === 500 ? 'paid' : 'extra'; amount = v; }
+
+    return `
+      <div style="display:grid; grid-template-columns:1fr 150px 90px; gap:8px; align-items:center; padding:8px 12px; border-bottom:1px solid var(--border);">
+        <span style="font-weight:700; font-size:0.86rem;">${m.name}</span>
+        <select class="batch-status" data-member="${m.id}" onchange="onBatchStatusChange(${m.id})">
+          <option value="paid" ${status === 'paid' ? 'selected' : ''}>✅ Paid (₹500)</option>
+          <option value="pending" ${status === 'pending' ? 'selected' : ''}>❌ Pending</option>
+          <option value="extra" ${status === 'extra' ? 'selected' : ''}>➕ Extra</option>
+          <option value="na" ${status === 'na' ? 'selected' : ''}>— N/A</option>
+        </select>
+        <input type="number" class="batch-amount" data-member="${m.id}" value="${amount}" ${status === 'extra' ? '' : 'disabled'} />
+      </div>`;
+  }).join('');
+}
+
+function onBatchStatusChange(memberId) {
+  const sel = document.querySelector(`.batch-status[data-member="${memberId}"]`);
+  const amountInput = document.querySelector(`.batch-amount[data-member="${memberId}"]`);
+  amountInput.disabled = sel.value !== 'extra';
+}
+
+async function saveBatch() {
+  const monthId = parseInt(document.getElementById('batchMonth').value, 10);
+  const entries = DATA.members.map(m => {
+    const status = document.querySelector(`.batch-status[data-member="${m.id}"]`).value;
+    const amount = parseInt(document.querySelector(`.batch-amount[data-member="${m.id}"]`).value, 10) || 500;
+    return { memberId: m.id, status, amount };
+  });
+  try {
+    await api('/contributions/batch', { method: 'PUT', body: JSON.stringify({ monthId, entries }) });
+  } catch (e) { alert(e.message); return; }
+  showSuccess('batchSuccess');
+  await refresh();
+  loadBatchMonth();
 }
 
 async function saveContribution() {
