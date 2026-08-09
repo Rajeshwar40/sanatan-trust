@@ -129,22 +129,34 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       if (valid) {
-        // Simulate submission
         const submitBtn = contactForm.querySelector('button[type="submit"]');
         const originalText = submitBtn.textContent;
         submitBtn.textContent = 'Sending...';
         submitBtn.disabled = true;
 
-        setTimeout(() => {
-          contactForm.reset();
-          submitBtn.textContent = originalText;
-          submitBtn.disabled = false;
-          formSuccess.classList.add('visible');
-
-          setTimeout(() => {
-            formSuccess.classList.remove('visible');
-          }, 5000);
-        }, 1200);
+        fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: nameInput.value.trim(),
+            phone: phoneInput.value.trim().replace(/\s+/g, ''),
+            message: document.getElementById('message').value.trim(),
+          }),
+        })
+          .then(res => res.json().then(body => ({ ok: res.ok, body })))
+          .then(({ ok, body }) => {
+            if (!ok) throw new Error((body && body.error) || 'Submission failed');
+            contactForm.reset();
+            formSuccess.classList.add('visible');
+            setTimeout(() => formSuccess.classList.remove('visible'), 5000);
+          })
+          .catch(() => {
+            alert('Sorry, we could not send your message. Please call us directly at +91 99060 41418.');
+          })
+          .finally(() => {
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+          });
       }
     });
 

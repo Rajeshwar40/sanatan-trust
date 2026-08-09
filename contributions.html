@@ -393,6 +393,14 @@
     <div class="progress-months" id="progressMonths"></div>
   </div>
 
+  <!-- Pending This Month -->
+  <div class="month-progress" id="pendingWrap">
+    <div class="progress-header">
+      <div class="progress-title">⏳ Pending This Month (<span id="pendingCount">0</span>) — <span id="pendingMonthLabel"></span></div>
+    </div>
+    <div id="pendingNamesList" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
+  </div>
+
   <!-- Table Controls -->
   <div class="section-head">
     <div>
@@ -405,6 +413,10 @@
     </div>
   </div>
 
+  <div class="filters">
+    <span class="filter-label">Filter year:</span>
+    <div id="yearChips"></div>
+  </div>
   <div class="filters">
     <span class="filter-label">Filter month:</span>
     <div id="monthChips"></div>
@@ -451,7 +463,6 @@
       </div>
       <div class="login-error" id="loginError">❌ Incorrect username or password.</div>
       <button class="btn btn-primary btn-full" onclick="doLogin()">Login →</button>
-      <p style="text-align:center; font-size:0.8rem; color:var(--text-light);">Default: admin / seva@2024</p>
     </div>
   </div>
 </div>
@@ -463,7 +474,10 @@
   <div class="modal" style="max-width:580px;">
     <div class="modal-header">
       <div class="modal-title">⚙️ Admin Panel</div>
-      <button class="modal-close" onclick="closeOverlay('adminOverlay')">✕</button>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <button class="btn btn-ghost btn-sm" onclick="doLogout()">Log Out</button>
+        <button class="modal-close" onclick="closeOverlay('adminOverlay')">✕</button>
+      </div>
     </div>
 
     <div class="admin-tabs">
@@ -535,9 +549,15 @@
     <div class="tab-panel" id="tabMonths">
       <div style="font-weight:700; margin-bottom:14px;">Add New Month Column</div>
       <div class="admin-form">
-        <div class="form-group">
-          <label>Month Name (e.g. May 26)</label>
-          <input type="text" id="newMonthName" placeholder="May 26" />
+        <div class="form-row">
+          <div class="form-group">
+            <label>Month Name (e.g. May)</label>
+            <input type="text" id="newMonthName" placeholder="May" />
+          </div>
+          <div class="form-group">
+            <label>Year</label>
+            <input type="number" id="newMonthYear" placeholder="2026" min="2000" max="2100" />
+          </div>
         </div>
         <button class="btn btn-primary" onclick="addMonth()">+ Add Month</button>
         <div class="success-msg" id="monthSuccess">✅ Month added!</div>
@@ -583,101 +603,78 @@
 
 <script>
 // ============================================================
-// DATA LAYER — localStorage
+// DATA LAYER — backend API (server is the source of truth)
 // ============================================================
-const STORE_KEY   = 'sbst_data';
-const PASS_KEY    = 'sbst_pass';
-const SESSION_KEY = 'sbst_admin';
+const API = '/api';
 
-const DEFAULT_PASS = 'seva@2024';
-const DEFAULT_USER = 'admin';
-
-// Seed data from the spreadsheet
-const SEED_MEMBERS = [
-  'Arjun Sambyal Bhaiya','Bhanu Jamwal','Chitranjan Smabyal',
-  'Mohit Sharma','Navdeep Billoria','Rahul Singh',
-  'Rajeshwar Singh','Rohit Sharma','Sanjay Singh',
-  'Sahil Sharma','Shubham Gupta','Shivanshu Sharma',
-  'Sohit Manhas','Tarun Sharma','Vishal Sharma',
-  'Vikrant Andotra','Pankaj','Bhaskar','Varinder'
-];
-const SEED_MONTHS = ['Aug','Sept','OCT','Nov','DEC','Jan 26','Feb 26','March 26','April 26'];
-
-// Contribution data from spreadsheet (member index → month index → amount|'pending'|'na')
-const SEED_CONTRIBS = {
-  // Name: [Aug,Sept,OCT,Nov,DEC,Jan26,Feb26,March26,April26]
-  'Arjun Sambyal Bhaiya': [500,500,500,500,500,500,500,'na','na'],
-  'Bhanu Jamwal':         [500,500,500,500,500,500,500,500,'na'],
-  'Chitranjan Smabyal':   [500,500,500,500,500,500,'pending','na','na'],
-  'Mohit Sharma':         [500,500,550,500,500,500,500,500,'na'],
-  'Navdeep Billoria':     [500,500,500,500,500,500,500,500,500],
-  'Rahul Singh':          [500,500,500,500,500,500,500,'na','na'],
-  'Rajeshwar Singh':      [500,1100,500,500,500,500,500,500,500],
-  'Rohit Sharma':         [500,500,500,500,500,500,500,500,500],
-  'Sanjay Singh':         [500,500,500,500,500,500,500,'na','na'],
-  'Sahil Sharma':         [500,500,500,500,500,500,500,'na','na'],
-  'Shubham Gupta':        [500,500,500,500,500,500,500,500,500],
-  'Shivanshu Sharma':     [500,500,1000,500,500,500,1000,500,500],
-  'Sohit Manhas':         [500,500,500,500,500,500,500,500,500],
-  'Tarun Sharma':         [500,500,500,500,500,500,500,'na','na'],
-  'Vishal Sharma':        [500,500,500,500,500,500,500,'na','na'],
-  'Vikrant Andotra':      [500,500,550,500,500,500,500,500,500],
-  'Pankaj':               [500,500,500,500,500,500,'pending','na','na'],
-  'Bhaskar':              [500,500,500,500,500,500,500,500,500],
-  'Varinder':             [500,500,500,500,500,500,500,'na','na'],
-};
-
-function loadData() {
-  const raw = localStorage.getItem(STORE_KEY);
-  if (!raw) return initData();
-  try { return JSON.parse(raw); } catch(e) { return initData(); }
-}
-
-function initData() {
-  const data = {
-    members: SEED_MEMBERS,
-    months: SEED_MONTHS,
-    contributions: {},  // { memberName: { monthName: amount|'pending'|'na' } }
-    lastUpdated: new Date().toISOString()
-  };
-  // Seed contributions
-  SEED_MEMBERS.forEach(m => {
-    data.contributions[m] = {};
-    const vals = SEED_CONTRIBS[m] || [];
-    SEED_MONTHS.forEach((mo, i) => {
-      data.contributions[m][mo] = vals[i] !== undefined ? vals[i] : 'na';
-    });
+async function api(path, options = {}) {
+  const res = await fetch(API + path, {
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    ...options,
   });
-  saveData(data);
-  return data;
+  let body = null;
+  try { body = await res.json(); } catch (e) { /* no body */ }
+  if (!res.ok) {
+    const err = new Error((body && body.error) || `Request failed (${res.status})`);
+    err.status = res.status;
+    throw err;
+  }
+  return body;
 }
 
-function saveData(data) {
-  data.lastUpdated = new Date().toISOString();
-  localStorage.setItem(STORE_KEY, JSON.stringify(data));
-}
-
-function getPass() {
-  return localStorage.getItem(PASS_KEY) || DEFAULT_PASS;
+async function loadData() {
+  return api('/data');
 }
 
 // ============================================================
 // STATE
 // ============================================================
-let DATA = loadData();
-let isAdmin = sessionStorage.getItem(SESSION_KEY) === '1';
-let activeMonthFilter = 'ALL';
+// DATA.members: [{id,name}]  DATA.months: [{id,name,year}] (sorted chronologically)
+// DATA.contributions: { [memberId]: { [monthId]: amount|'pending'|'na' } }
+let DATA = { members: [], months: [], contributions: {}, isAdmin: false };
+let isAdmin = false;
+let activeYearFilter = 'ALL';
+let activeMonthFilter = 'ALL'; // 'ALL' or a month id
+
+function contribFor(memberId, monthId) {
+  return (DATA.contributions[memberId] || {})[monthId];
+}
+function monthsInYear(year) {
+  return year === 'ALL' ? DATA.months : DATA.months.filter(mo => mo.year === year);
+}
 
 // ============================================================
 // RENDER
 // ============================================================
-function render() {
+async function refresh() {
+  DATA = await loadData();
+  isAdmin = !!DATA.isAdmin;
   updateSummaryCards();
   renderMonthProgress();
+  renderPendingList();
+  renderYearChips();
   renderMonthChips();
   renderTable();
   updateLastUpdated();
   updateAdminUI();
+}
+const render = refresh;
+
+function renderPendingList() {
+  const members = DATA.members;
+  const months  = DATA.months;
+  const latestMonth = months[months.length - 1];
+  const wrap = document.getElementById('pendingNamesList');
+  document.getElementById('pendingMonthLabel').textContent = latestMonth ? `${latestMonth.name} ${latestMonth.year}` : '';
+  if (!latestMonth) { wrap.innerHTML = ''; document.getElementById('pendingCount').textContent = '0'; return; }
+
+  const pendingNames = members.filter(m => contribFor(m.id, latestMonth.id) === 'pending').map(m => m.name);
+
+  document.getElementById('pendingCount').textContent = pendingNames.length;
+  wrap.innerHTML = pendingNames.length
+    ? pendingNames.map(n => `<span class="badge-pending" style="font-size:0.85rem;padding:6px 14px;">${n}</span>`).join('')
+    : '<span style="color:var(--green);font-weight:700;">✅ Everyone has paid this month!</span>';
 }
 
 function updateLastUpdated() {
@@ -691,7 +688,6 @@ function updateLastUpdated() {
 function updateSummaryCards() {
   const members = DATA.members;
   const months  = DATA.months;
-  const contribs= DATA.contributions;
 
   document.getElementById('statMembers').textContent = members.length;
 
@@ -699,54 +695,54 @@ function updateSummaryCards() {
   let total = 0;
   members.forEach(m => {
     months.forEach(mo => {
-      const v = (contribs[m] || {})[mo];
+      const v = contribFor(m.id, mo.id);
       if (typeof v === 'number') total += v;
     });
   });
   document.getElementById('statCollected').textContent = '₹' + total.toLocaleString('en-IN');
 
-  // This month (latest month)
+  // This month (latest month overall, regardless of filters)
   const latestMonth = months[months.length - 1];
   let thisMonthTotal = 0, thisMonthPending = 0, applicable = 0;
   members.forEach(m => {
-    const v = (contribs[m] || {})[latestMonth];
-    if (v === 'na') return;
+    const v = latestMonth ? contribFor(m.id, latestMonth.id) : 'na';
+    if (v === 'na' || v === undefined) return;
     applicable++;
     if (typeof v === 'number') thisMonthTotal += v;
     else thisMonthPending += 500;
   });
+  const label = latestMonth ? `${latestMonth.name} ${latestMonth.year}` : '—';
   document.getElementById('statThisMonth').textContent = '₹' + thisMonthTotal.toLocaleString('en-IN');
-  document.getElementById('statThisMonthLabel').textContent = latestMonth;
+  document.getElementById('statThisMonthLabel').textContent = label;
   document.getElementById('statPending').textContent = '₹' + thisMonthPending.toLocaleString('en-IN');
-  document.getElementById('statPendingLabel').textContent = `${latestMonth} pending`;
+  document.getElementById('statPendingLabel').textContent = `${label} pending`;
   const rate = applicable > 0 ? Math.round(((applicable - (thisMonthPending/500)) / applicable) * 100) : 0;
   document.getElementById('statRate').textContent = rate + '%';
 }
 
 function renderMonthProgress() {
   const members = DATA.members;
-  const months  = DATA.months;
-  const contribs= DATA.contributions;
+  const months  = monthsInYear(activeYearFilter);
   const wrap = document.getElementById('progressMonths');
   wrap.innerHTML = '';
 
   months.forEach(mo => {
     let paid = 0, total = 0;
     members.forEach(m => {
-      const v = (contribs[m] || {})[mo];
-      if (v === 'na') return;
+      const v = contribFor(m.id, mo.id);
+      if (v === 'na' || v === undefined) return;
       total++;
       if (typeof v === 'number') paid++;
     });
     const pct = total > 0 ? Math.round((paid / total) * 100) : 0;
     const amount = members.reduce((s, m) => {
-      const v = (contribs[m] || {})[mo];
+      const v = contribFor(m.id, mo.id);
       return s + (typeof v === 'number' ? v : 0);
     }, 0);
 
     wrap.innerHTML += `
       <div class="prog-month">
-        <div class="prog-month-name">${mo}</div>
+        <div class="prog-month-name">${mo.name}${activeYearFilter === 'ALL' ? ' ' + mo.year : ''}</div>
         <div class="prog-bar-wrap"><div class="prog-bar" style="width:${pct}%"></div></div>
         <div class="prog-stats">
           <span>${paid}/${total} paid</span>
@@ -756,34 +752,56 @@ function renderMonthProgress() {
   });
 }
 
+function renderYearChips() {
+  const years = [...new Set(DATA.months.map(mo => mo.year))].sort((a, b) => a - b);
+  const wrap = document.getElementById('yearChips');
+  wrap.innerHTML = '';
+
+  const all = document.createElement('div');
+  all.className = 'month-chip' + (activeYearFilter === 'ALL' ? ' active' : '');
+  all.textContent = 'All Years';
+  all.onclick = () => { activeYearFilter = 'ALL'; activeMonthFilter = 'ALL'; renderYearChips(); renderMonthChips(); renderMonthProgress(); renderTable(); };
+  wrap.appendChild(all);
+
+  years.forEach(y => {
+    const chip = document.createElement('div');
+    chip.className = 'month-chip' + (activeYearFilter === y ? ' active' : '');
+    chip.textContent = y;
+    chip.onclick = () => { activeYearFilter = y; activeMonthFilter = 'ALL'; renderYearChips(); renderMonthChips(); renderMonthProgress(); renderTable(); };
+    wrap.appendChild(chip);
+  });
+}
+
 function renderMonthChips() {
   const wrap = document.getElementById('monthChips');
   wrap.innerHTML = '';
   const all = document.createElement('div');
-  all.className = 'month-chip' + (activeMonthFilter==='ALL' ? ' active' : '');
+  all.className = 'month-chip' + (activeMonthFilter === 'ALL' ? ' active' : '');
   all.textContent = 'All Months';
-  all.onclick = () => { activeMonthFilter='ALL'; renderMonthChips(); renderTable(); };
+  all.onclick = () => { activeMonthFilter = 'ALL'; renderMonthChips(); renderTable(); };
   wrap.appendChild(all);
 
-  DATA.months.forEach(mo => {
+  monthsInYear(activeYearFilter).forEach(mo => {
     const chip = document.createElement('div');
-    chip.className = 'month-chip' + (activeMonthFilter===mo ? ' active' : '');
-    chip.textContent = mo;
-    chip.onclick = () => { activeMonthFilter=mo; renderMonthChips(); renderTable(); };
+    chip.className = 'month-chip' + (activeMonthFilter === mo.id ? ' active' : '');
+    chip.textContent = activeYearFilter === 'ALL' ? `${mo.name} ${mo.year}` : mo.name;
+    chip.onclick = () => { activeMonthFilter = mo.id; renderMonthChips(); renderTable(); };
     wrap.appendChild(chip);
   });
 }
 
 function renderTable() {
   const search    = document.getElementById('searchBox').value.toLowerCase().trim();
-  const members   = DATA.members.filter(m => m.toLowerCase().includes(search));
-  const months    = activeMonthFilter === 'ALL' ? DATA.months : [activeMonthFilter];
-  const contribs  = DATA.contributions;
+  const members   = DATA.members.filter(m => m.name.toLowerCase().includes(search));
+  const yearMonths = monthsInYear(activeYearFilter);
+  const months    = activeMonthFilter === 'ALL' ? yearMonths : yearMonths.filter(mo => mo.id === activeMonthFilter);
+
+  const monthLabel = mo => activeYearFilter === 'ALL' ? `${mo.name} ${mo.year}` : mo.name;
 
   // Head
   const head = document.getElementById('tableHead');
   head.innerHTML = '<th>Member Name</th>' +
-    months.map(m => `<th>${m}</th>`).join('') +
+    months.map(mo => `<th>${monthLabel(mo)}</th>`).join('') +
     '<th>Total</th>';
 
   // Body
@@ -792,14 +810,14 @@ function renderTable() {
   members.forEach(m => {
     let rowTotal = 0;
     const cells = months.map(mo => {
-      const v = (contribs[m] || {})[mo];
+      const v = contribFor(m.id, mo.id);
       if (v === 'na' || v === undefined) return `<td class="cell-na">—</td>`;
       if (v === 'pending') return `<td><span class="badge-pending">Pending</span></td>`;
       rowTotal += v;
       return `<td class="cell-paid">₹${v.toLocaleString('en-IN')}</td>`;
     }).join('');
     body.innerHTML += `<tr>
-      <td>${m}</td>
+      <td>${m.name}</td>
       ${cells}
       <td class="cell-total">₹${rowTotal.toLocaleString('en-IN')}</td>
     </tr>`;
@@ -809,7 +827,7 @@ function renderTable() {
   const foot = document.getElementById('tableFoot');
   const monthTotals = months.map(mo =>
     members.reduce((s, m) => {
-      const v = (contribs[m] || {})[mo];
+      const v = contribFor(m.id, mo.id);
       return s + (typeof v === 'number' ? v : 0);
     }, 0)
   );
@@ -830,18 +848,28 @@ function openAdminLogin() {
   document.getElementById('loginOverlay').classList.add('open');
 }
 
-function doLogin() {
-  const u = document.getElementById('loginUser').value.trim();
-  const p = document.getElementById('loginPass').value;
-  if (u === DEFAULT_USER && p === getPass()) {
+async function doLogin() {
+  const username = document.getElementById('loginUser').value.trim();
+  const password = document.getElementById('loginPass').value;
+  document.getElementById('loginError').classList.remove('show');
+  try {
+    await api('/login', { method: 'POST', body: JSON.stringify({ username, password }) });
     isAdmin = true;
-    sessionStorage.setItem(SESSION_KEY, '1');
     closeOverlay('loginOverlay');
+    await refresh();
     updateAdminUI();
     openAdminPanel();
-  } else {
+  } catch (e) {
+    document.getElementById('loginError').textContent = '❌ ' + e.message;
     document.getElementById('loginError').classList.add('show');
   }
+}
+
+async function doLogout() {
+  try { await api('/logout', { method: 'POST' }); } catch (e) { /* ignore */ }
+  isAdmin = false;
+  closeOverlay('adminOverlay');
+  await refresh();
 }
 
 function updateAdminUI() {
@@ -887,30 +915,28 @@ function switchTab(id) {
   document.querySelectorAll('.admin-tab')[idx].classList.add('active');
 }
 
-function addMember() {
+async function addMember() {
   const name = document.getElementById('newMemberName').value.trim();
   if (!name) return;
-  if (DATA.members.includes(name)) { alert('Member already exists!'); return; }
-  DATA.members.push(name);
-  DATA.contributions[name] = {};
-  DATA.months.forEach(mo => DATA.contributions[name][mo] = 'pending');
-  saveData(DATA);
+  try {
+    await api('/members', { method: 'POST', body: JSON.stringify({ name }) });
+  } catch (e) { alert(e.message); return; }
   document.getElementById('newMemberName').value = '';
   showSuccess('memberSuccess');
+  await refresh();
   populateAdminDropdowns();
   renderAdminMemberList();
-  document.getElementById('memberCount').textContent = DATA.members.length;
-  render();
 }
 
-function removeMember(name) {
-  if (!confirm(`Remove "${name}" from all records?`)) return;
-  DATA.members = DATA.members.filter(m => m !== name);
-  delete DATA.contributions[name];
-  saveData(DATA);
+async function removeMember(id) {
+  const m = DATA.members.find(x => x.id === id);
+  if (!confirm(`Remove "${m ? m.name : 'this member'}" from all records?`)) return;
+  try {
+    await api('/members/' + id, { method: 'DELETE' });
+  } catch (e) { alert(e.message); return; }
+  await refresh();
   renderAdminMemberList();
   populateAdminDropdowns();
-  render();
 }
 
 function renderAdminMemberList() {
@@ -918,110 +944,120 @@ function renderAdminMemberList() {
   document.getElementById('memberCount').textContent = DATA.members.length;
   list.innerHTML = DATA.members.map(m => `
     <div class="admin-member-item">
-      <span class="admin-member-name">👤 ${m}</span>
+      <span class="admin-member-name">👤 ${m.name}</span>
       <div class="admin-member-actions">
-        <button class="btn btn-danger btn-sm" onclick="removeMember('${m.replace(/'/g,"\\'")}')">🗑️</button>
+        <button class="btn btn-danger btn-sm" onclick="removeMember(${m.id})">🗑️</button>
       </div>
     </div>`).join('');
 }
 
-function addMonth() {
+async function addMonth() {
   const name = document.getElementById('newMonthName').value.trim();
-  if (!name) return;
-  if (DATA.months.includes(name)) { alert('Month already exists!'); return; }
-  DATA.months.push(name);
-  DATA.members.forEach(m => { DATA.contributions[m][name] = 'pending'; });
-  saveData(DATA);
+  const year = parseInt(document.getElementById('newMonthYear').value, 10);
+  if (!name || !year) { alert('Please enter both a month name and a year.'); return; }
+  try {
+    await api('/months', { method: 'POST', body: JSON.stringify({ name, year }) });
+  } catch (e) { alert(e.message); return; }
   document.getElementById('newMonthName').value = '';
+  document.getElementById('newMonthYear').value = '';
   showSuccess('monthSuccess');
+  await refresh();
   renderMonthList();
   populateAdminDropdowns();
-  render();
 }
 
-function removeMonth(mo) {
-  if (!confirm(`Remove month "${mo}" from all records?`)) return;
-  DATA.months = DATA.months.filter(m => m !== mo);
-  DATA.members.forEach(m => delete DATA.contributions[m][mo]);
-  saveData(DATA);
+async function removeMonth(id) {
+  const mo = DATA.months.find(x => x.id === id);
+  if (!confirm(`Remove month "${mo ? mo.name + ' ' + mo.year : ''}" from all records?`)) return;
+  try {
+    await api('/months/' + id, { method: 'DELETE' });
+  } catch (e) { alert(e.message); return; }
+  await refresh();
   renderMonthList();
   populateAdminDropdowns();
-  render();
 }
 
 function renderMonthList() {
   const wrap = document.getElementById('monthList');
   wrap.innerHTML = DATA.months.map(mo => `
     <div style="display:flex;align-items:center;gap:6px;background:var(--off-white);border:1px solid var(--border);border-radius:8px;padding:6px 12px;">
-      <span style="font-weight:700;font-size:0.88rem;">${mo}</span>
-      <button class="btn btn-danger btn-sm" style="padding:3px 8px;" onclick="removeMonth('${mo}')">✕</button>
+      <span style="font-weight:700;font-size:0.88rem;">${mo.name} ${mo.year}</span>
+      <button class="btn btn-danger btn-sm" style="padding:3px 8px;" onclick="removeMonth(${mo.id})">✕</button>
     </div>`).join('');
 }
 
 function populateAdminDropdowns() {
-  ['editMember'].forEach(id => {
+  const memberSel = document.getElementById('editMember');
+  memberSel.innerHTML = DATA.members.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+
+  ['editMonth', 'bulkMonth'].forEach(id => {
     const sel = document.getElementById(id);
-    sel.innerHTML = DATA.members.map(m => `<option value="${m}">${m}</option>`).join('');
+    sel.innerHTML = DATA.months.map(mo => `<option value="${mo.id}">${mo.name} ${mo.year}</option>`).join('');
+    if (DATA.months.length) sel.value = DATA.months[DATA.months.length - 1].id;
   });
-  ['editMonth','bulkMonth'].forEach(id => {
-    const sel = document.getElementById(id);
-    sel.innerHTML = DATA.months.map(mo => `<option value="${mo}">${mo}</option>`).join('');
-    // Default to latest month
-    sel.value = DATA.months[DATA.months.length - 1];
-  });
+
+  // Default "Add Month" year to the latest known year (or current year if none yet)
+  const yearInput = document.getElementById('newMonthYear');
+  if (yearInput && !yearInput.value) {
+    const latestYear = DATA.months.length ? DATA.months[DATA.months.length - 1].year : new Date().getFullYear();
+    yearInput.placeholder = String(latestYear);
+  }
 }
 
-function saveContribution() {
-  const member = document.getElementById('editMember').value;
-  const month  = document.getElementById('editMonth').value;
-  const status = document.getElementById('editStatus').value;
-  const amount = parseInt(document.getElementById('editAmount').value) || 500;
-  if (!DATA.contributions[member]) DATA.contributions[member] = {};
-  if (status === 'paid') DATA.contributions[member][month] = 500;
-  else if (status === 'extra') DATA.contributions[member][month] = amount;
-  else if (status === 'pending') DATA.contributions[member][month] = 'pending';
-  else DATA.contributions[member][month] = 'na';
-  saveData(DATA);
+async function saveContribution() {
+  const memberId = parseInt(document.getElementById('editMember').value, 10);
+  const monthId  = parseInt(document.getElementById('editMonth').value, 10);
+  const status   = document.getElementById('editStatus').value;
+  const amount   = parseInt(document.getElementById('editAmount').value) || 500;
+  try {
+    await api('/contributions', { method: 'PUT', body: JSON.stringify({ memberId, monthId, status, amount }) });
+  } catch (e) { alert(e.message); return; }
   showSuccess('contribSuccess');
-  render();
+  await refresh();
 }
 
-function markAllPaid() {
-  const month = document.getElementById('bulkMonth').value;
-  DATA.members.forEach(m => { DATA.contributions[m][month] = 500; });
-  saveData(DATA);
+async function markAllPaid() {
+  const monthId = parseInt(document.getElementById('bulkMonth').value, 10);
+  try {
+    await api('/contributions/bulk', { method: 'POST', body: JSON.stringify({ monthId, status: 'paid' }) });
+  } catch (e) { alert(e.message); return; }
   showSuccess('bulkSuccess');
-  render();
+  await refresh();
 }
 
-function markAllPending() {
-  const month = document.getElementById('bulkMonth').value;
-  DATA.members.forEach(m => { DATA.contributions[m][month] = 'pending'; });
-  saveData(DATA);
+async function markAllPending() {
+  const monthId = parseInt(document.getElementById('bulkMonth').value, 10);
+  try {
+    await api('/contributions/bulk', { method: 'POST', body: JSON.stringify({ monthId, status: 'pending' }) });
+  } catch (e) { alert(e.message); return; }
   showSuccess('bulkSuccess');
-  render();
+  await refresh();
 }
 
-function changePassword() {
-  const cur  = document.getElementById('curPass').value;
-  const nw   = document.getElementById('newPass').value;
-  const conf = document.getElementById('confPass').value;
+async function changePassword() {
+  const currentPassword = document.getElementById('curPass').value;
+  const newPassword     = document.getElementById('newPass').value;
+  const conf            = document.getElementById('confPass').value;
   const errEl = document.getElementById('passError');
   errEl.classList.remove('show');
-  if (cur !== getPass()) { errEl.textContent = '❌ Current password incorrect.'; errEl.classList.add('show'); return; }
-  if (nw.length < 6) { errEl.textContent = '❌ New password must be at least 6 characters.'; errEl.classList.add('show'); return; }
-  if (nw !== conf) { errEl.textContent = '❌ Passwords do not match.'; errEl.classList.add('show'); return; }
-  localStorage.setItem(PASS_KEY, nw);
+  if (newPassword !== conf) { errEl.textContent = '❌ Passwords do not match.'; errEl.classList.add('show'); return; }
+  try {
+    await api('/change-password', { method: 'POST', body: JSON.stringify({ currentPassword, newPassword }) });
+  } catch (e) {
+    errEl.textContent = '❌ ' + e.message;
+    errEl.classList.add('show');
+    return;
+  }
   showSuccess('passSuccess');
   document.getElementById('curPass').value = '';
   document.getElementById('newPass').value = '';
   document.getElementById('confPass').value = '';
 }
 
-function resetAll() {
-  localStorage.removeItem(STORE_KEY);
-  localStorage.removeItem(PASS_KEY);
-  sessionStorage.removeItem(SESSION_KEY);
+async function resetAll() {
+  try {
+    await api('/reset', { method: 'POST' });
+  } catch (e) { alert(e.message); return; }
   location.reload();
 }
 
@@ -1037,7 +1073,11 @@ function showSuccess(id) {
 // ============================================================
 // INIT
 // ============================================================
-render();
+refresh().catch(err => {
+  console.error('Failed to load contribution data:', err);
+  document.getElementById('tableBody').innerHTML =
+    '<tr><td colspan="99" style="text-align:center;color:var(--red);padding:24px;">Could not reach the server. Make sure the backend is running.</td></tr>';
+});
 </script>
 </body>
 </html>
